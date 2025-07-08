@@ -226,5 +226,5 @@ def delete_uploaded():
     return jsonify({"message": "Uploaded inventory data deleted successfully."})
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     app.run(debug=True)
