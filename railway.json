@@ -3,6 +3,6 @@
     "builder": "NIXPACKS"
   },
   "start": {
-    "cmd": "gunicorn app:app --bind 0.0.0.0:5000"
+    "cmd": "gunicorn app:app --bind 0.0.0.0:$PORT"
   }
 }
