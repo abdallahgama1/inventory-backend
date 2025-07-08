@@ -1,4 +1,8 @@
 {
-  "build": "pip install -r requirements.txt",
-  "start": "gunicorn app:app --bind 0.0.0.0:$PORT"
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "start": {
+    "cmd": "gunicorn app:app --bind 0.0.0.0:$PORT"
+  }
 }
