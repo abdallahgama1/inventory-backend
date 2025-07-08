@@ -1,0 +1,7 @@
+Flask
+pandas
+openpyxl
+flask_cors
+xlrd
+python-dotenv
+datetime
