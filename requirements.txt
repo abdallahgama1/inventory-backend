@@ -5,3 +5,4 @@ flask_cors
 xlrd
 python-dotenv
 datetime
+web: gunicorn app:app
