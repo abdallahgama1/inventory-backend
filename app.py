@@ -5,6 +5,7 @@ import os
 from openpyxl import load_workbook
 from openpyxl import Workbook
 from datetime import datetime
+from flask import send_file, after_this_request
 
 # === Column Index Constants ===
 COL_IDX_ITEM_ID = 11
@@ -217,6 +218,32 @@ def scanned_data_list():
     data.sort(key=lambda x: datetime.fromisoformat(x["date"]), reverse=True)
 
     return data
+
+@app.route("/download-excel", methods=["GET"])
+def download_excel():
+    global excel_file_path
+
+    if not excel_file_path or not os.path.exists(excel_file_path):
+        return jsonify({"error": "No Excel file found to download."}), 404
+
+    # Save the path in a local variable so it can be used after the response
+    path_to_delete = excel_file_path
+
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(path_to_delete)
+            print(f"Deleted file: {path_to_delete}")
+        except Exception as e:
+            print(f"Error deleting file: {e}")
+        return response
+
+    return send_file(
+        excel_file_path,
+        as_attachment=True,
+        download_name=os.path.basename(excel_file_path),
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 
 @app.route("/delete-uploaded", methods=["DELETE"])
