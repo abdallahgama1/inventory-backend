@@ -12,6 +12,7 @@ COL_IDX_ITEM_ID = 11
 COL_IDX_PRODUCT_NAME = 0
 COL_IDX_UNIT_QTY = 9
 COL_IDX_COST_PRICE = 2
+COL_IDX_SELLING_PRICE = 4
 
 app = Flask(__name__)
 CORS(app)
@@ -63,12 +64,14 @@ def upload_excel():
                 product_name = row[COL_IDX_PRODUCT_NAME]
                 expected_qty = int(float(row[COL_IDX_UNIT_QTY]))
                 item_price = float(row[COL_IDX_COST_PRICE])
-
+                selling_price = float(row[COL_IDX_SELLING_PRICE])
+                
                 temp_scanned_data[item_id] = {
                     "product_name": product_name,
                     "expected_qty": expected_qty,
                     "scanned_qty": 0,
                     "item_price": item_price,
+                    "selling_price": selling_price,
                     "date": datetime.now()
                 }
             except:
@@ -120,7 +123,8 @@ def scan_item():
                 "Scanned Quantity",
                 "Variance",
                 "Total Price",
-                "Expected Total Price"
+                "Expected Total Price",
+                "Selling Price"
             ])
         else:
             ws = wb["Scan Results"]
@@ -145,7 +149,8 @@ def scan_item():
                 scanned["scanned_qty"],
                 scanned["variance"],
                 scanned["total_price"],
-                scanned["expected_total_price"]
+                scanned["expected_total_price"],
+                scanned["selling_price"] 
             ])
 
         wb.save(excel_file_path)
@@ -159,7 +164,8 @@ def scan_item():
         "expected_qty": scanned["expected_qty"],
         "scanned_qty": scanned["scanned_qty"],
         "variance": scanned["variance"],
-        "all_scanned_data": scanned_data_list()
+        "all_scanned_data": scanned_data_list(),
+        "selling_price": scanned["selling_price"], 
     })
 
 
@@ -208,6 +214,7 @@ def scanned_data_list():
             "scanned_qty": entry["scanned_qty"],
             "variance": entry["scanned_qty"] - entry["expected_qty"],
             "item_price": entry["item_price"],
+            "selling_price": entry["selling_price"],
             "total_price": entry.get("total_price", 0),
             "expected_total_price": entry.get("expected_total_price", 0),
             "date": entry["date"].isoformat()
