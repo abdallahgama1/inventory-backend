@@ -6,3 +6,4 @@ xlrd
 python-dotenv
 datetime
 gunicorn
+Flask-SQLAlchemy
