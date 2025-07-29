@@ -302,7 +302,7 @@ def download_excel():
 
     try:
         # Query only items that have been scanned (scanned_qty > 0)
-        all_inventory_items = db.session.query(InventoryItem).filter(InventoryItem.scanned_qty > 0).all()
+        all_inventory_items = db.session.query(InventoryItem).all()
         
         report_data = []
         for item in all_inventory_items:
