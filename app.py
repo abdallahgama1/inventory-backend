@@ -127,7 +127,17 @@ def upload_excel():
         for index, row in df.iterrows():
             try:
                 # Access columns by their 0-indexed positions directly
-                item_id = str(row[COL_IDX_ITEM_ID]).strip().upper()
+                raw_item_id = row[COL_IDX_ITEM_ID]
+                if pd.isna(raw_item_id):
+                    continue  # Skip empty cells
+
+                # Handle numeric SKUs correctly (e.g., avoid 6221105001356.0)
+                if isinstance(raw_item_id, float):
+                    item_id = str(int(raw_item_id)).strip()
+                else:
+                    item_id = str(raw_item_id).strip()
+
+                item_id = item_id.upper()
                 if not item_id or item_id == '0':
                     continue
 
@@ -336,18 +346,26 @@ def download_excel():
 @app.route("/delete-uploaded", methods=["DELETE"])
 def delete_uploaded():
     try:
-        db.session.query(InventoryItem).update({
-            InventoryItem.scanned_qty: 0,
-            InventoryItem.last_scanned_date: None
-        })
+        num_deleted = db.session.query(InventoryItem).delete()
         db.session.commit()
-        logger.info("All scanned quantities reset to 0. Master inventory preserved.")
-        return jsonify({"message": "Scan session reset successfully. Master inventory preserved."})
+        logger.info(f"Deleted {num_deleted} items from inventory.")
+        return jsonify({"message": f"Deleted {num_deleted} items from inventory."})
     except Exception as e:
         db.session.rollback()
-        logger.error(f"Error resetting scanned quantities: {e}", exc_info=True)
-        return jsonify({"error": f"Failed to reset scanned quantities: {str(e)}"}), 500
+        logger.error(f"Error clearing inventory: {e}", exc_info=True)
+        return jsonify({"error": f"Failed to clear inventory: {str(e)}"}), 500
+    #     db.session.query(InventoryItem).update({
+    #         InventoryItem.scanned_qty: 0,
+    #         InventoryItem.last_scanned_date: None
+    #     })
+    #     db.session.commit()
+    #     logger.info("All scanned quantities reset to 0. Master inventory preserved.")
+    #     return jsonify({"message": "Scan session reset successfully. Master inventory preserved."})
+    # except Exception as e:
+    #     db.session.rollback()
+    #     logger.error(f"Error resetting scanned quantities: {e}", exc_info=True)
+    #     return jsonify({"error": f"Failed to reset scanned quantities: {str(e)}"}), 500
 
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
